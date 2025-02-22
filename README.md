@@ -1,21 +1,5 @@
 # DDCET Rank Predictor and College Finder
 
-![DDCET](https://ddcet.netlify.app/logo.png)
-
-## Table of Contents
-
-- [About](#about)
-- [Live Website](#live-website)
-- [Features](#features)
-- [Screenshot](#screenshot)
-- [Tools Used](#tools-used)
-- [Installation](#installation)
-- [Contributing](#contributing)
-- [Contact](#contact)
-- [License](#license)
-
-## About
-
 This is a website designed to predict a student's rank in the Diploma to Degree Common Entrance Test (DDCET) exam and provide a list of potential colleges for admission based on the predicted rank. The tool allows students to input their marks and choose their category, college type, and engineering course to find the best-fit college for them.
 
 ⚠️ **Disclaimer:** This website is not an official site and is intended for general information purposes only, The data provided on this website is for the year 2024.
@@ -42,7 +26,7 @@ Check out the live website https://ddcet.netlify.app/
 
 ## Screenshot
 
-![image](https://raw.githubusercontent.com/Harsh21Patel/D2D-Admission-Helper/main/img/Screenshot.png)
+![image](https://media-hosting.imagekit.io//8ee1c9a2c1424572/screencapture-ddcet-netlify-app-2025-02-22-16_55_34.png?Expires=1834831604&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=BeVoL6r5qPy-0F~2CH1vAglCkVzuyN8D-yBaPUrJ-XIvnd1J7dV6hCmUcf2IuHrhao57EIaredlfHbRFcRE14NR8GN22gJ1EB~HCsBiTPpOCDdEwiULy9eZWRd48hh70O6zv0yNdcr8bAYTI~2DqLfqBd96NALw3NEXnKiKkGu5TGaKpWUTpwd7Q3ocp-QncEmoHd5I4rkWokQ5FYouKF~ytacWIj-HTmJw5bc0PkKIZc9UXrnEaAtXBEIuh6Y9mnHj71NStNwnG5kGNoLdXn4NX0xfwqCDzdYF8wqVYCBYHO8yIZCIqRMm0Xu6NSRriIEt5Ylki-rnrNiq53oN8TA__)
 
 ## Tools Used
 
