@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDCET Rank Predictor</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script defer>
+        let rankData = [];
+        let collegeData = [];
+
+        async function loadData() {
+            const rankResponse = await fetch('data.json');
+            rankData = await rankResponse.json();
+            const collegeResponse = await fetch('college.json');
+            collegeData = await collegeResponse.json();
+        }
+
+        function predictRank() {
+            const marks = parseFloat(document.getElementById('marksInput').value);
+            if (isNaN(marks) || marks < 0 || marks > 200) {
+                document.getElementById('result').innerText = "Please enter a valid marks between 0 and 200.";
+                return;
+            }
+            
+            let ranks = rankData.filter(entry => entry.Marks === marks).map(entry => entry.Rank);
+            
+            if (ranks.length === 0) {
+                let nearest = rankData.reduce((prev, curr) => (
+                    Math.abs(curr.Marks - marks) < Math.abs(prev.Marks - marks) ? curr : prev
+                ));
+                ranks = rankData.filter(entry => entry.Marks === nearest.Marks).map(entry => entry.Rank);
+            }
+            
+            const minRank = Math.min(...ranks);
+            const maxRank = Math.max(...ranks);
+            document.getElementById('predictedRank').value = minRank;
+            document.getElementById('result').innerText = `Predicted Rank: ${minRank} - ${maxRank} for ${marks} Marks!`;
+        }
+
+        function searchColleges() {
+    const rank = parseInt(document.getElementById('predictedRank').value);
+    const category = document.getElementById('category').value;
+    const collegeType = document.getElementById('collegeType').value;
+    const course = document.getElementById('course').value;
+    
+    const eligibleColleges = collegeData.filter(college => 
+        college["Category"] === category &&
+        college["Type"] === collegeType &&
+        college["Branch"].includes(course) &&
+        rank <= college["Last Rank"]
+    );
+    
+    eligibleColleges.sort((a, b) => a["First Rank"] - b["First Rank"]);
+    
+    let resultHTML = "<ul class='list-group'>";
+    if (eligibleColleges.length > 0) {
+        let headerAdded = false; 
+
+        eligibleColleges.forEach(college => {
+
+            if (!headerAdded) {
+                resultHTML += `
+                <table class="table table-striped table-hover table-bordered">
+                    <thead class="table-primary">
+                        <tr class="text-center">
+                            <th>Institution Name</th>
+                            <th>First Rank</th>
+                            <th>Last Rank</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+                headerAdded = true;  
+            }
+
+            resultHTML += `<tr>
+                <td>${college["Name of Institute"]}</td>
+                <td>${college["First Rank"]}</td>
+                <td>${college["Last Rank"]}</td>
+            </tr>`;
+        });
+
+        resultHTML += `</tbody></table>`;
+    } else {
+        resultHTML += "<h3 class='mt-4 text-center'>No colleges found for the given criteria.</h3>";
+    }
+    resultHTML += "</ul>";
+    
+    document.getElementById('collegeResults').innerHTML = resultHTML;
+}
+
+        
+        window.onload = loadData;
+    </script>
+</head>
+<body class="bg-white">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary m-2 shadow rounded-4 border border-secondary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="./"><img src="./Logo.png" class="img-fluid ms-3" width="170px" alt=""></a>
+
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse mb-2" id="navbarTogglerDemo02">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-5"></div> <div class="ms-2"></div>
+              <li class="nav-item me-3">
+                <a class="btn btn-outline-dark mt-2 " href="./Disclaimer.html" role="button"><i class="bi bi-exclamation-lg"></i> Disclaimer</a>
+              </li>
+              <li class="nav-item me-3">
+                <a class="btn btn-outline-dark mt-2" href="mailto:ddcet@proton.me" role="button"><i class="bi bi-envelope"></i> Contact</i></a>
+              </li>
+              <li class="nav-item">
+                <a class="btn btn-outline-dark mt-2" href="https://github.com/Harsh21Patel/DDCET" role="button"><i class="bi bi-github"></i></a>
+              </li>
+            </ul>
+
+          </div>
+        </div>
+      </nav>
+    <div class="container mt-4">
+        <div class="card shadow border border-secondary p-4">
+            
+            <h2 class="text-center yaro">Rank Predictor</h2>
+            <div class="mb-3">
+                <label for="marksInput" class="form-label">Enter Your Expected Marks:</label>
+                <input type="number" step="0.5" id="marksInput" class="form-control" placeholder="Enter your marks between 0 and 200">
+            </div>
+            <div class="text-center">
+            <button class="btn btn-primary w-50" onclick="predictRank()"><i class="bi bi-search"></i> Predict Rank</button></div>
+            <h3 class="mt-4 text-center" id="result"></h3>
+            <!-- <div class="mt-3 text-center" id="result"></div> -->
+        </div>
+        <div class="card shadow p-4 mt-4 border border-secondary">
+            <h2 class="text-center yaro">Find Possible Admissions</h2>
+            <div class="mb-3">
+                <label for="predictedRank" class="form-label">Your Predicted Rank:</label>
+                <input type="number" id="predictedRank" class="form-control" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="category" class="form-label">Category:</label>
+                <select id="category" class="form-control">
+                    <option value="OP">OPEN</option>
+                    <option value="EW">EWS</option>
+                    <option value="SC">SC</option>
+                    <option value="SE">SEBC</option>
+                    <option value="ST">ST</option>
+                    <option value="TF">TFWS</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="collegeType" class="form-label">College Type:</label>
+                <select id="collegeType" class="form-control">
+                    <option value="GOV">Government</option>
+                    <option value="SFI">Self Finance</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="course" class="form-label">Course:</label>
+                <select id="course" class="form-control">
+                    <option>Aeronautical Engg.</option>
+                    <option>AI And Machine Learning</option>
+                    <option>Artificial Intelligence</option>
+                    <option>Artificial Intelligence And Data Science</option>
+                    <option>Automobile Engg.</option>
+                    <option>Biomedical Engg.</option>
+                    <option>Chemical Engg.</option>
+                    <option>Chemical Engineering (Separate Division)</option>
+                    <option>Civil & Infrastructure Engg.</option>
+                    <option>Civil Engg.</option>
+                    <option>Civil Engineering (Separate Division)</option>
+                    <option>Comp. Sc. & Business Systems</option>
+                    <option>Comp. Sc. And Information Technology</option>
+                    <option>Computer Engg.</option>
+                    <option>Computer Engg. (AI And Machine Learning)</option>
+                    <option>Computer Engg. (Artificial Intelligence)</option>
+                    <option>Computer Engg. (Cloud Tech. & Info. Security)</option>
+                    <option>Computer Engg. (ML & AI)</option>
+                    <option>Computer Engg.-Gujarati</option>
+                    <option>Computer Science & Engg</option>
+                    <option>CS & Design</option>
+                    <option>CSE (AI And Machine Learning)</option>
+                    <option>CSE (Artificial Intelligence)</option>
+                    <option>CSE (Big Data & Analysis)</option>
+                    <option>CSE (Cyber Security)</option>
+                    <option>CSE (Data Science)</option>
+                    <option>CSE (IOT & CSI Block Chain)</option>
+                    <option>CSE (IOT)</option>
+                    <option>CSE (Separate Division)</option>
+                    <option>Cyber Security</option>
+                    <option>Dairy Tech.</option>
+                    <option>EC Engg.</option>
+                    <option>Electrical Engg.</option>
+                    <option>Electrical Engineering (Separate Division)</option>
+                    <option>Electronics & Communication Engineering (Separate Division)</option>
+                    <option>Electronics & Instru. Engg.</option>
+                    <option>Electronics Engg.</option>
+                    <option>Environmental Engg.</option>
+                    <option>Environmental Science & Tech.</option>
+                    <option>Fire And Env. Health, Safety Engineering</option>
+                    <option>Information & Communication Tech.</option>
+                    <option>Information Tech.</option>
+                    <option>Instrumentation & Control Engg.</option>
+                    <option>IT & Engg.</option>
+                    <option>Manufacaturing Engg.</option>
+                    <option>Mechanical Engg.</option>
+                    <option>Mechanical Engineering (Separate Division)</option>
+                    <option>Mechatronics</option>
+                    <option>Metallurgical And Materials Engg.</option>
+                    <option>Metallurgy</option>
+                    <option>Mining Engg.</option>
+                    <option>Petrochemical Engg.</option>
+                    <option>Petroleum Engg.</option>
+                    <option>Plastic Engg.</option>
+                    <option>Plastic Tech.</option>
+                    <option>Power Electronics</option>
+                    <option>Production Engg.</option>
+                    <option>Robotics And Automation</option>
+                    <option>Rubber Tech.</option>
+                    <option>Textile Engg.</option>
+                    <option>Textile Processing Engg.</option>
+                    <option>Textile Tech.</option>
+                    <option>Water Management</option>                    
+                </select>
+            </div>
+            <div class="text-center">
+            <button class="btn btn-primary w-50" onclick="searchColleges()"><i class="bi bi-search"></i> Search</button>
+        </div>
+        <div class="mt-4" id="collegeResults"></div>
+        </div>
+        
+    </div>
+    <div class="alert alert-warning mt-4 w-100 text-center mb-0" role="alert">
+        ⚠️ This website is <b>not an official ACPC site</b>, it is for general information purposes only.
+      </div>    
+      
+    <!-- Disclaimer Modal -->
+    <div class="modal fade" id="firstVisitModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title yaro" id="modalLabel">⚠️ Disclaimer</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Welcome to <span><img src="./Logo.png" class="img-fluid mb-1" width="80px" alt=""></span>, Please read this disclaimer carefully before using our services.</p>
+        <ul class="list-unstyled">
+            <li>🚫 <strong>Not an official ACPC site</strong> – This website is not affiliated with any government or educational authority.</li>
+            <li>📊 <strong>Predictions are based on DDCET 2024 data</strong> – Rank prediction and possible college admissions are estimated using past trends. Results may vary.</li>
+            <li>❌ <strong>No guarantees</strong> – We do not ensure admission to any specific college or the exact rank predicted by our system.</li>
+            <li>🎓 <strong>For educational purposes only</strong> – The information provided is for guidance, not an official admission decision.</li>
+            <li>🛠️ <strong>Found a bug or need help?</strong> Contact us at <a href="mailto:ddcet@proton.me" class="fw-bold text-decoration-none">📧 ddcet@proton.me</a>.</li>
+        </ul>
+        <p class="text-center mt-3">Developed by <a href="https://github.com/Harsh21Patel" class="fw-bold text-decoration-none">@HarshPatel 💻</a></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="acceptBtn">I Understand</button>
+                </div>
+            </div>
+        </div>
+    </div>
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            if (!localStorage.getItem("visited")) {
+                var myModal = new bootstrap.Modal(document.getElementById('firstVisitModal'));
+                myModal.show();
+                
+                document.getElementById("acceptBtn").addEventListener("click", function () {
+                    localStorage.setItem("visited", "true");
+                    myModal.hide();
+                });
+            }
+        });
+    </script>
+
+<script>
+    document.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+    });
+
+    document.addEventListener("keydown", function (e) {
+        if (e.ctrlKey && (e.key === "u" || e.key === "U")) {
+            e.preventDefault();
+            
+        }
+        if (e.key === "F12" || 
+            (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C"))) {
+            e.preventDefault();
+            
+        }
+    });
+
+    setInterval(function() {
+        let before = new Date().getTime();
+        debugger;
+        let after = new Date().getTime();
+        if (after - before > 100) {
+           
+            window.location.href = "about:blank"; 
+        }
+    }, 1000);
+</script>
+
+
+</body>
+</html>
